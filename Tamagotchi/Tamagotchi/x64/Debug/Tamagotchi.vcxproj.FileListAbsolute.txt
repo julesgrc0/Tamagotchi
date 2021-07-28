@@ -1,0 +1,2 @@
+C:\APPS\run\Tamagotchi\Tamagotchi\Tamagotchi\x64\Debug\Tamagotchi.vcxproj.CopyComplete
+C:\jules-dev\~\Tamagotchi\Tamagotchi\Tamagotchi\x64\Debug\Tamagotchi.vcxproj.CopyComplete
