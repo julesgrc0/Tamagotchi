@@ -3,7 +3,6 @@
 
 enum WindowState {
 	INIT,
-	LOAD_ASSETS,
 	START_GAME,
 	GAME_RUNNING,
 	PAUSE_GAME,
@@ -21,7 +20,9 @@ private:
 	WindowState state;
 
 	void init_load();
-	void load();
+	bool fontload = false;
+	int load_size;
+	int load_index;
 
 	void update(float&);
 	void draw(sf::RenderWindow&);
@@ -30,7 +31,7 @@ private:
 	sf::Font font;
 	std::vector<sf::Texture> textures;
 
-	void text(std::string,sf::Vector2f,int);
+	sf::Text text(std::string,sf::Vector2f,int,bool diff = false);
 };
 
-std::string join(const char* path1,const char* path2);
+std::string merge_path(const char* path1, const char* path2);
