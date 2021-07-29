@@ -1,6 +1,8 @@
 #pragma once
 #include<SFML/Graphics.hpp>
 
+#include "Entity.h"
+
 enum WindowState {
 	INIT,
 	START_GAME,
@@ -29,7 +31,18 @@ private:
 	
 	char* application_path;
 	sf::Font font;
-	std::vector<sf::Texture> textures;
+
+	std::vector<
+		std::pair<
+		int, // type id
+		std::vector< // animation list
+				std::pair<
+					EntityState, // state
+					std::vector<sf::Texture> // state textures
+				>
+			>
+		>
+	> entityTextures;
 
 	sf::Text text(std::string,sf::Vector2f,int,bool diff = false);
 };

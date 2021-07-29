@@ -98,3 +98,21 @@ void readdir(std::string dir,std::vector<DirectoryItem>* items)
     } while (FindNextFileW(hFind, &ffd) != NULL);
 
 }
+
+bool contains_list(std::vector<std::string> l1, std::vector<std::string> l2)
+{
+    for (size_t i = 0; i < l1.size(); i++)
+    {
+        for (size_t k = 0; k < l2.size(); k++)
+        {
+            if (l1[i] == l2[k])
+            {
+                l1.erase(l1.begin() + i);
+                i--;
+                break;
+            }
+        }
+    }
+
+    return !l1.size() ? true : false;
+}
