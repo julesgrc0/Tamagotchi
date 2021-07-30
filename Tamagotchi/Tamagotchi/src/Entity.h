@@ -1,20 +1,22 @@
 #pragma once
+#include<iostream>
+#include<vector>
 #include<SFML/Graphics.hpp>
 
 enum EntityState {
-	STATIC,
-	SICK,
 	ANGRY,
-	LOOP,
-	HAPPY,
 	ENERGIE,
+	HAPPY,
+	LOOP,
+	SICK,
+	STATIC,
 	WAIT
 };
 
 class Entity
 {
 public:
-	Entity();
+	Entity(std::vector<std::pair<EntityState,std::vector<sf::Texture>>>,int);
 	~Entity();
 	
 	EntityState state;
@@ -24,8 +26,12 @@ public:
 
 	bool aabb(Entity&);
 	static EntityState getStatefromString(std::string);
-protected:
+	static std::string getStatetoString(EntityState);
 	virtual void update(float&);
 	virtual void draw(sf::RenderWindow&);
+
+protected:
+	std::vector<std::pair<EntityState, std::vector<sf::Texture>>> textures;
+	int8_t id;
 };
 

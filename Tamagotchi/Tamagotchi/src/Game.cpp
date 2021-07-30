@@ -45,6 +45,7 @@ bool Window::start()
 
     if (this->state == WindowState::START_GAME)
     {
+       this->animal = new Animal(this->entityTextures[0].second, this->entityTextures[0].first);
         while (window.isOpen())
         {
             deltatime = clock.restart().asSeconds();
@@ -77,6 +78,9 @@ float upd = 0;
 
 void Window::update(float& deltatime)
 {
+    this->animal->update(deltatime);
+
+    /*
     upd += deltatime * 1000;
     if (upd >= 50)
     {
@@ -92,20 +96,23 @@ void Window::update(float& deltatime)
             }
         }
     }
-   
+   */
 }
 
 
 void Window::draw(sf::RenderWindow& window)
 {
-    sf::Sprite s;
+    this->animal->draw(window);
+   
+
+    /*
+     sf::Sprite s;
     sf::Texture tmp = this->entityTextures[0].second[g_index].second[index];
     s.setTexture(tmp);
     s.setPosition(sf::Vector2f(0, 0));
     s.setScale(sf::Vector2f(4,4));
     window.draw(s);
-
-    
+    */
     /*sf::RectangleShape rectangle;
     rectangle.setPosition(sf::Vector2f(100, 100));
     rectangle.setSize(sf::Vector2f(PIXEL_SIZE, PIXEL_SIZE));

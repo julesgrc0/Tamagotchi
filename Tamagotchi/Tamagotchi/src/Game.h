@@ -1,7 +1,7 @@
 #pragma once
 #include<SFML/Graphics.hpp>
-
 #include "Entity.h"
+#include "./Enities/Animal.h"
 
 enum WindowState {
 	INIT,
@@ -31,6 +31,9 @@ private:
 	
 	char* application_path;
 	sf::Font font;
+	
+	Animal* animal;
+
 
 	std::vector<
 		std::pair<

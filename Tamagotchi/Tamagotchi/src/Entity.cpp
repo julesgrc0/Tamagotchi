@@ -1,27 +1,25 @@
 #include "Entity.h"
 #include "Const.h"
 
-Entity::Entity()
+Entity::Entity(std::vector<std::pair<EntityState, std::vector<sf::Texture>>> textures, int id)
 {
-
+    this->textures = textures;
+    this->id = id;
 }
 
 Entity::~Entity()
 {
-
 }
 
-void Entity::draw(sf::RenderWindow&)
+void Entity::draw(sf::RenderWindow &)
 {
-
 }
 
-void Entity::update(float&)
+void Entity::update(float &)
 {
-
 }
 
-bool Entity::aabb(Entity& e)
+bool Entity::aabb(Entity &e)
 {
     if (e.position.x < this->position.x + this->position.x &&
         e.position.x + e.position.x > this->position.x &&
@@ -30,41 +28,70 @@ bool Entity::aabb(Entity& e)
     {
         return true;
     }
-	return false;
+    return false;
+}
+
+std::string Entity::getStatetoString(EntityState s)
+{
+
+    switch (s)
+    {
+    case ANGRY:
+
+        return ANIM_ANGRY;
+        break;
+    case ENERGIE:
+        return ANIM_ENERGIE;
+        break;
+    case HAPPY:
+        return ANIM_HAPPY;
+        break;
+    case LOOP:
+        return ANIM_LOOP;
+        break;
+    case SICK:
+        return ANIM_SICK;
+        break;
+    case STATIC:
+        return ANIM_STATIC;
+        break;
+    case WAIT:
+        return ANIM_WAIT;
+        break;
+    }
 }
 
 EntityState Entity::getStatefromString(std::string str)
 {
     EntityState s;
-    if(str == ANIM_HAPPY )
+    if (str == ANIM_HAPPY)
     {
         s = EntityState::HAPPY;
     }
-    if(str == ANIM_ANGRY)
+    if (str == ANIM_ANGRY)
     {
         s = EntityState::ANGRY;
     }
-    if(str == ANIM_SICK )
+    if (str == ANIM_SICK)
     {
         s = EntityState::SICK;
     }
-    if(str == ANIM_WAIT )
+    if (str == ANIM_WAIT)
     {
         s = EntityState::WAIT;
     }
-    if(str == ANIM_LOOP )
+    if (str == ANIM_LOOP)
     {
         s = EntityState::LOOP;
     }
-    if(str == ANIM_STATIC )
+    if (str == ANIM_STATIC)
     {
         s = EntityState::STATIC;
     }
-    if(str == ANIM_ENERGIE)
+    if (str == ANIM_ENERGIE)
     {
         s = EntityState::ENERGIE;
     }
-
 
     return s;
 }
