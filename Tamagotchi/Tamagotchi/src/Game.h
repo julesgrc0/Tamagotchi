@@ -34,7 +34,8 @@ private:
 	
 	Animal* animal;
 
-
+	std::vector<sf::Texture> background;
+	std::vector<sf::Texture> icons;
 	std::vector<
 		std::pair<
 		int, // type id
@@ -47,7 +48,11 @@ private:
 		>
 	> entityTextures;
 
+	void textureLoader(std::string name,std::vector<sf::Texture>* textures,std::string dir);
+
 	sf::Text text(std::string,sf::Vector2f,int,bool diff = false);
 };
+
+
 
 std::string merge_path(const char* path1, const char* path2);

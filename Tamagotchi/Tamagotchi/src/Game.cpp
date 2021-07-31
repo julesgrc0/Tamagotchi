@@ -10,14 +10,13 @@
 #include "Const.h"
 #include "Utils.h"
 
-
 Window::Window()
 {
     this->application_path = new char[MAX_PATH];
     LPWSTR tmp = new WCHAR[MAX_PATH];
-    
+
     GetModuleFileNameW(NULL, tmp, MAX_PATH);
-    
+
     this->application_path = _com_util::ConvertBSTRToString(_bstr_t(tmp).GetBSTR());
     std::string tmpstr = this->application_path;
 
@@ -25,13 +24,12 @@ Window::Window()
     list.pop_back();
     strcpy(this->application_path, (join(list, '\\').c_str()));
 
-    delete[] tmp;    
+    delete[] tmp;
 }
 
 Window::~Window()
 {
 }
-
 
 bool Window::start()
 {
@@ -45,11 +43,10 @@ bool Window::start()
 
     if (this->state == WindowState::START_GAME)
     {
-       this->animal = new Animal(this->entityTextures[0].second, this->entityTextures[0].first);
+        this->animal = new Animal(this->entityTextures[0].second, this->entityTextures[0].first);
         while (window.isOpen())
         {
             deltatime = clock.restart().asSeconds();
-
 
             while (window.pollEvent(event))
             {
@@ -72,38 +69,32 @@ bool Window::start()
     return false;
 }
 
-int index = 0;
-int g_index = 0;
-float upd = 0;
-
-void Window::update(float& deltatime)
+void Window::update(float &deltatime)
 {
     this->animal->update(deltatime);
-
-    /*
-    upd += deltatime * 1000;
-    if (upd >= 50)
-    {
-        upd = 0;
-        index++;
-        if (index >= this->entityTextures[0].second[g_index].second.size())
-        {
-            index = 0;
-            g_index++;
-            if (g_index >= this->entityTextures[0].second.size())
-            {
-                g_index = 0;
-            }
-        }
-    }
-   */
 }
 
-
-void Window::draw(sf::RenderWindow& window)
+void Window::draw(sf::RenderWindow &window)
 {
+    if (this->background.size())
+    {
+        sf::Sprite back;
+        back.setTexture(this->background[this->animal->getBackground()]);
+        back.setPosition(sf::Vector2f(0, 0));
+        back.setScale(sf::Vector2f(PIXEL_SIZE, PIXEL_SIZE));
+        window.draw(back);
+    }
+
     this->animal->draw(window);
-   
+
+    if (this->animal->isNight())
+    {
+        sf::RectangleShape filter;
+        filter.setFillColor(sf::Color::Color(12, 32, 145, 100));
+        filter.setPosition(sf::Vector2f(0, 0));
+        filter.setSize(sf::Vector2f(window.getSize()));
+        window.draw(filter);
+    }
 
     /*
      sf::Sprite s;
@@ -130,7 +121,8 @@ void Window::init_load()
         LOG() << "[ERR] Fail to load " << path;
         return;
     }
-    else {
+    else
+    {
         LOG() << "[INFO] Load font in " << path;
         this->fontload = true;
     }
@@ -162,18 +154,15 @@ void Window::init_load()
         LOG() << "[ERR] Fail to load " << merge_path(this->application_path, FONT);
     }*/
 
-
-
     std::vector<DirectoryItem> items;
     std::vector<std::string> requireTexturesFolders = {
-        ANIM_HAPPY ,
+        ANIM_HAPPY,
         ANIM_ANGRY,
         ANIM_SICK,
         ANIM_WAIT,
-        ANIM_LOOP ,
+        ANIM_LOOP,
         ANIM_STATIC,
-        ANIM_ENERGIE
-    };
+        ANIM_ENERGIE};
 
     std::string assetsDir = merge_path(this->application_path, "assets\\");
     readdir(assetsDir, &items);
@@ -184,12 +173,11 @@ void Window::init_load()
     }
 
     int ent_id = 0;
-    for (DirectoryItem& item : items)
+    for (DirectoryItem &item : items)
     {
         if (!item.isFile && item.name.rfind("type_", 0) == 0)
         {
             ent_id++;
-            
 
             LOG() << "[INFO] Load entity " + item.name;
 
@@ -199,7 +187,7 @@ void Window::init_load()
             {
                 int totalSize = 0;
                 std::vector<std::string> strlist;
-                for (auto& it : texturesDir)
+                for (auto &it : texturesDir)
                 {
                     if (!it.isFile && it.name != ".." && it.name != ".")
                     {
@@ -212,14 +200,14 @@ void Window::init_load()
                     LOG() << "[INFO] All required textures folder found";
                     std::vector< // animation list
                         std::pair<
-                        EntityState, // state
-                        std::vector<sf::Texture> // state textures
-                        >
-                    > animation;
+                            EntityState,             // state
+                            std::vector<sf::Texture> // state textures
+                            >>
+                        animation;
 
-                    for (std::string& folder : requireTexturesFolders)
+                    for (std::string &folder : requireTexturesFolders)
                     {
-                        std::string texDir = assetsDir + item.name + "\\" + folder+"\\";
+                        std::string texDir = assetsDir + item.name + "\\" + folder + "\\";
                         LOG() << "[INFO] Load textures from " << texDir;
 
                         texturesDir.clear();
@@ -228,12 +216,12 @@ void Window::init_load()
                         if (texturesDir.size())
                         {
                             std::vector<sf::Texture> ent_textures;
-                            for (auto& it : texturesDir)
+                            for (auto &it : texturesDir)
                             {
                                 if (it.isFile && it.name.find(".png"))
                                 {
                                     sf::Texture tmp;
-                                    if (tmp.loadFromFile(texDir+ it.name))
+                                    if (tmp.loadFromFile(texDir + it.name))
                                     {
                                         totalSize += it.lowPart;
                                         LOG() << "[INFO] Textures " << it.name << " " << it.lowPart << "o";
@@ -243,39 +231,74 @@ void Window::init_load()
                             }
 
                             animation.push_back(std::make_pair(Entity::getStatefromString(folder), ent_textures));
-                        }else
+                        }
+                        else
                         {
                             LOG() << "[ERR] Textures no found in " << texDir;
                         }
                     }
 
                     std::pair<
-                        int, // type id
+                        int,         // type id
                         std::vector< // animation list
-                        std::pair<
-                        EntityState, // state
-                        std::vector<sf::Texture> // state textures
-                        >
-                        >
-                    > ent_obj = std::make_pair(ent_id, animation);
+                            std::pair<
+                                EntityState,             // state
+                                std::vector<sf::Texture> // state textures
+                                >>>
+                        ent_obj = std::make_pair(ent_id, animation);
                     this->entityTextures.push_back(ent_obj);
-
                 }
 
-                LOG() << "[INFO] " << totalSize / 1000 << " ko of textures have been loaded for "+item.name;
+                LOG() << "[INFO] " << totalSize / 1000 << " ko of textures have been loaded for " + item.name;
             }
+        }
+        else if (!item.isFile && item.name == "backgrounds")
+        {
+            this->textureLoader(item.name, &this->background, assetsDir);
+        }
+        else if (!item.isFile && item.name == "icon")
+        {
+            this->textureLoader(item.name, &this->background, assetsDir);
         }
     }
     this->state = WindowState::START_GAME;
 }
 
+void Window::textureLoader(std::string name, std::vector<sf::Texture> *textures, std::string dir)
+{
+    std::vector<DirectoryItem> list;
+    readdir(dir + "\\" + name, &list);
+    int totalsize = 0;
 
+    if (list.size())
+    {
+        for (DirectoryItem &it : list)
+        {
+            if (it.isFile && it.name.find(".png"))
+            {
+                sf::Texture tmp;
+                if (tmp.loadFromFile(dir + "\\" + name + "\\" + it.name))
+                {
+                    totalsize += it.lowPart;
+                    LOG() << "[INFO] Textures " << it.name << " " << it.lowPart << "o";
+                    textures->push_back(tmp);
+                }
+            }
+        }
+    }
+    else
+    {
+        LOG() << "[ERR] Textures for " << name << " are not found in " << dir + "\\" + name;
+    }
 
-sf::Text Window::text(std::string text, sf::Vector2f position, int size,bool diff)
+    LOG() << "[INFO] " << totalsize / 1000 << " ko of " << name << " textures have been loaded";
+}
+
+sf::Text Window::text(std::string text, sf::Vector2f position, int size, bool diff)
 {
     sf::Text t;
     t.setFont(this->font);
-    t.setString(text); 
+    t.setString(text);
     t.setCharacterSize(size);
 
     if (diff)
@@ -289,8 +312,7 @@ sf::Text Window::text(std::string text, sf::Vector2f position, int size,bool dif
     return t;
 }
 
-std::string merge_path(const char* path1, const char* path2)
+std::string merge_path(const char *path1, const char *path2)
 {
     return std::string(path1) + std::string(path2);
 }
-
