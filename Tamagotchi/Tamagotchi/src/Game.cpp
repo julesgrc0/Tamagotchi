@@ -1,5 +1,5 @@
 #define _CRT_SECURE_NO_WARNINGS
-
+#include <SFML/Audio.hpp>
 #include "Game.h"
 
 #include <Windows.h>
@@ -43,6 +43,25 @@ bool Window::start()
 
     if (this->state == WindowState::START_GAME)
     {
+        sf::Music music;
+        std::string musicpath = merge_path(this->application_path, "assets\\music\\background.wav");
+        if (music.openFromFile(musicpath))
+        {
+            LOG() << "[INFO] Load background music in "<< musicpath;
+            
+            music.play();
+            
+            // TODO: config file
+
+            //music.setVolume(100);
+            //music.setPitch(2); speed
+            
+            // std::string song_index = std::to_string(music.getPlayingOffset().asSeconds()) + "/" + std::to_string(music.getDuration().asSeconds());
+        }else
+        {
+            LOG() << "[ERR] Fail to load background music in "<< musicpath;
+        }
+
         this->animal = new Animal(this->entityTextures[0].second, this->entityTextures[0].first);
         while (window.isOpen())
         {
