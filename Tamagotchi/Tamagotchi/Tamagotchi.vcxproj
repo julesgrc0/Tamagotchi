@@ -144,6 +144,7 @@
     <ClCompile Include="src\Entity.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="src\Game.cpp" />
+    <ClCompile Include="src\UserConfig.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Enities\Animal.h" />
@@ -152,6 +153,7 @@
     <ClInclude Include="src\Log.h" />
     <ClInclude Include="src\Utils.h" />
     <ClInclude Include="src\Game.h" />
+    <ClInclude Include="src\UserConfig.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

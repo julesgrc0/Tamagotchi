@@ -1,0 +1,13 @@
+{
+  "music": {
+    "active": true,
+    "pitch": 1.0,
+    "volume": 100
+  },
+  "windows":
+  {
+    "console":true,
+    "showFPS":true,
+    "alwaysOnTop":false
+  }
+}

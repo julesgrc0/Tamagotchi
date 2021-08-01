@@ -9,6 +9,7 @@
 #include "Log.h"
 #include "Const.h"
 #include "Utils.h"
+#include "UserConfig.h"
 
 Window::Window()
 {
@@ -35,32 +36,51 @@ bool Window::start()
 {
 
     sf::RenderWindow window(sf::VideoMode(300, 300), "Tamagotchi", sf::Style::Close);
+    window.setVerticalSyncEnabled(false);
+    window.setVisible(true);
+    
+    //HWND hwnd = window.getSystemHandle();
+    //SetWindowPos(hwnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE);
+
+    //HWND console = GetForegroundWindow();
+    //ShowWindow(console, SW_HIDE);
 
     sf::Clock clock;
     sf::Event event;
     float deltatime = 0;
+
     this->init_load();
+    
+    UserConfig* config = new UserConfig(std::string(this->application_path));
+    config->loadConfig();
+    ConfigObject userconf = config->user;
+    
+    delete config;
 
     if (this->state == WindowState::START_GAME)
     {
         sf::Music music;
-        std::string musicpath = merge_path(this->application_path, "assets\\music\\background.wav");
-        if (music.openFromFile(musicpath))
+        
+        if (userconf.musicEnable)
         {
-            LOG() << "[INFO] Load background music in "<< musicpath;
-            
-            music.play();
-            
-            // TODO: config file
+            std::string musicpath = merge_path(this->application_path, "assets\\music\\background.wav");
+            if (music.openFromFile(musicpath))
+            {
+                LOG() << "[INFO] Load background music in " << musicpath;
 
-            //music.setVolume(100);
-            //music.setPitch(2); speed
-            
-            // std::string song_index = std::to_string(music.getPlayingOffset().asSeconds()) + "/" + std::to_string(music.getDuration().asSeconds());
-        }else
-        {
-            LOG() << "[ERR] Fail to load background music in "<< musicpath;
+                music.play();
+                music.setPitch(userconf.musicPitch);
+                music.setVolume(userconf.musicVolume);
+
+                // TODO: Save in game data before close
+                // std::string song_index = std::to_string(music.getPlayingOffset().asSeconds()) + "/" + std::to_string(music.getDuration().asSeconds());
+            }
+            else
+            {
+                LOG() << "[ERR] Fail to load background music in " << musicpath;
+            }
         }
+       
 
         this->animal = new Animal(this->entityTextures[0].second, this->entityTextures[0].first);
         while (window.isOpen())

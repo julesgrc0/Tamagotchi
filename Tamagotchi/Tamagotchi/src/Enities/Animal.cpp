@@ -91,6 +91,8 @@ void Animal::draw(sf::RenderWindow &window)
 {
     if (this->alive)
     {
+       
+
         sf::Sprite s;
         std::pair<EntityState, std::vector<sf::Texture>> item;
 
@@ -106,13 +108,13 @@ void Animal::draw(sf::RenderWindow &window)
 
         sf::Texture tmp = item.second[0];
         s.setTexture(tmp);
+        this->position.x = (window.getSize().x - tmp.getSize().x) / 2;
+        this->position.y = ((window.getSize().y - tmp.getSize().y) / 2) + 18 * PIXEL_SIZE;
+
         s.setPosition(this->position);
         s.setScale(sf::Vector2f(4, 4));
         s.setOrigin(sf::Vector2f(tmp.getSize().x / 2, tmp.getSize().y / 2));
         window.draw(s);
-
-        this->position.x = (window.getSize().x - tmp.getSize().x) / 2;
-        this->position.y = ((window.getSize().y - tmp.getSize().y) / 2) + 18 * PIXEL_SIZE;
 
         if (this->showBox)
         {
