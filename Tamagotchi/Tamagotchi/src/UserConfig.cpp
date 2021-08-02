@@ -58,5 +58,30 @@ bool UserConfig::loadConfig()
 		}
 	}
 
+	Json::Value window = root["window"];
+	if (window)
+	{
+		
+		if (window["VerticalSync"])
+		{
+			this->user.VerticalSync = window["VerticalSync"].asBool();
+		}
+
+		if (window["console"])
+		{
+			this->user.console = window["console"].asBool();
+		}
+
+		if (window["showFPS"])
+		{
+			this->user.showFPS = window["showFPS"].asBool();
+		}
+
+		if (window["alwaysOnTop"])
+		{
+			this->user.alwaysOnTop = window["alwaysOnTop"].asBool();
+		}
+	}
+
 	return true;
 }

@@ -4,14 +4,14 @@
 
 Animal::Animal(std::vector<std::pair<EntityState, std::vector<sf::Texture>>> t, int id) : Entity(t, id)
 {
-    this->state = EntityState::ANGRY;
-
+    this->updateCurrentTextures();
 }
 
 void Animal::update(float &detatime)
 {
     if (this->alive)
     {
+
         this->animation_time += detatime * 1000;
         this->background_time += detatime * 1000;
         this->night_time += detatime * 1000;
@@ -19,17 +19,6 @@ void Animal::update(float &detatime)
         this->interaction_time += detatime * 1000;
         this->hunger_time += detatime * 1000;
 
-        if (this->animation_time >= 1000)
-        {
-            this->animation_time = 0;
-            int s = (this->state + 1);
-            if (s >= 7)
-            {
-                s = 0;
-            }
-            this->state = (EntityState)s;
-            LOG() << Entity::getStatetoString(this->state);
-        }
 
         if (this->hunger_time >= SHOW_HUNGER_TIME)
         {
@@ -87,47 +76,56 @@ void Animal::update(float &detatime)
     }
 }
 
+void Animal::updateCurrentTextures()
+{
+    std::pair<EntityState, std::vector<sf::Texture>> item;
+
+    std::find_if(this->textures.begin(), this->textures.end(), [&](const std::pair<EntityState, std::vector<sf::Texture>>& p)
+        {
+            if (p.first == this->state)
+            {
+                item = p;
+                return true;
+            }
+            return false;
+        });
+    this->currentTextures = item.second;
+}
+
 void Animal::draw(sf::RenderWindow &window)
 {
     if (this->alive)
     {
-       
-
-        sf::Sprite s;
-        std::pair<EntityState, std::vector<sf::Texture>> item;
-
-        std::find_if(this->textures.begin(), this->textures.end(), [&](const std::pair<EntityState, std::vector<sf::Texture>>& p)
-            {
-                if (p.first == this->state)
-                {
-                    item = p;
-                    return true;
-                }
-                return false;
-            });
-
-        sf::Texture tmp = item.second[0];
-        s.setTexture(tmp);
-        this->position.x = (window.getSize().x - tmp.getSize().x) / 2;
-        this->position.y = ((window.getSize().y - tmp.getSize().y) / 2) + 18 * PIXEL_SIZE;
-
-        s.setPosition(this->position);
-        s.setScale(sf::Vector2f(4, 4));
-        s.setOrigin(sf::Vector2f(tmp.getSize().x / 2, tmp.getSize().y / 2));
-        window.draw(s);
-
-        if (this->showBox)
+        if (this->stateChange)
         {
-            sf::RectangleShape rect;
-            rect.setSize(sf::Vector2f(tmp.getSize().x * 4, tmp.getSize().y * 4));
-            rect.setPosition(this->position);
-            rect.setOrigin(sf::Vector2f(rect.getSize().x / 2, rect.getSize().y / 2));
+            this->currentSprite.setTexture(this->currentTextures[this->texturesIndex]);
+            this->currentSprite.setScale(sf::Vector2f(4, 4));
+            this->currentSprite.setOrigin(sf::Vector2f(ANIMAL_TEXTURE_SIZE / 2, ANIMAL_TEXTURE_SIZE / 2));
 
-            rect.setOutlineColor(sf::Color::Red);
-            rect.setOutlineThickness(1);
-            rect.setFillColor(sf::Color::Transparent);
-            window.draw(rect);
+            if (!this->isCenter)
+            {
+                this->isCenter = true;
+                this->position.x = (window.getSize().x - ANIMAL_TEXTURE_SIZE) / 2;
+                this->position.y = ((window.getSize().y - ANIMAL_TEXTURE_SIZE) / 2) + 18 * PIXEL_SIZE;
+            }
+            this->currentSprite.setPosition(this->position);
+            this->stateChange = false;
         }
+        
+        window.draw(this->currentSprite);
+    }
+
+    if (this->showBox)
+    {
+        sf::RectangleShape rect;
+        rect.setSize(sf::Vector2f(ANIMAL_TEXTURE_SIZE * 4, ANIMAL_TEXTURE_SIZE * 4));
+        rect.setPosition(this->position);
+        rect.setOrigin(sf::Vector2f(rect.getSize().x / 2, rect.getSize().y / 2));
+
+        rect.setOutlineColor(sf::Color::Red);
+        rect.setOutlineThickness(1);
+        rect.setFillColor(sf::Color::Transparent);
+        window.draw(rect);
     }
 }
 

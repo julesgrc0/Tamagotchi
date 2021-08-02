@@ -4,10 +4,11 @@
     "pitch": 1.0,
     "volume": 100
   },
-  "windows":
+  "window":
   {
     "console":true,
     "showFPS":true,
-    "alwaysOnTop":false
+    "alwaysOnTop":false,
+    "VerticalSync":false
   }
 }

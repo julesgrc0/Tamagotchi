@@ -5,6 +5,11 @@ struct ConfigObject {
 	int musicVolume = 100;
 	bool musicEnable = true;
 	float musicPitch = 1.0f;
+
+	bool console = true;
+	bool showFPS = true;
+	bool alwaysOnTop = false;
+	bool VerticalSync = false;
 };
 
 class UserConfig

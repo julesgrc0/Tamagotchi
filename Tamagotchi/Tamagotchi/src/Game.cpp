@@ -34,21 +34,6 @@ Window::~Window()
 
 bool Window::start()
 {
-
-    sf::RenderWindow window(sf::VideoMode(300, 300), "Tamagotchi", sf::Style::Close);
-    window.setVerticalSyncEnabled(false);
-    window.setVisible(true);
-    
-    //HWND hwnd = window.getSystemHandle();
-    //SetWindowPos(hwnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE);
-
-    //HWND console = GetForegroundWindow();
-    //ShowWindow(console, SW_HIDE);
-
-    sf::Clock clock;
-    sf::Event event;
-    float deltatime = 0;
-
     this->init_load();
     
     UserConfig* config = new UserConfig(std::string(this->application_path));
@@ -57,32 +42,58 @@ bool Window::start()
     
     delete config;
 
+    sf::Music music;
+    if (userconf.musicEnable)
+    {
+        std::string musicpath = merge_path(this->application_path, "assets\\music\\background.wav");
+        if (music.openFromFile(musicpath))
+        {
+            LOG() << "[INFO] Load background music in " << musicpath;
+
+            music.setPitch(userconf.musicPitch);
+            music.setVolume(userconf.musicVolume);
+
+            // TODO: Save in game data before close
+            // std::string song_index = std::to_string(music.getPlayingOffset().asSeconds()) + "/" + std::to_string(music.getDuration().asSeconds());
+        }
+        else
+        {
+            LOG() << "[ERR] Fail to load background music in " << musicpath;
+        }
+    }
+
     if (this->state == WindowState::START_GAME)
     {
-        sf::Music music;
-        
+        this->animal = new Animal(this->entityTextures[0].second, this->entityTextures[0].first);
         if (userconf.musicEnable)
         {
-            std::string musicpath = merge_path(this->application_path, "assets\\music\\background.wav");
-            if (music.openFromFile(musicpath))
-            {
-                LOG() << "[INFO] Load background music in " << musicpath;
-
-                music.play();
-                music.setPitch(userconf.musicPitch);
-                music.setVolume(userconf.musicVolume);
-
-                // TODO: Save in game data before close
-                // std::string song_index = std::to_string(music.getPlayingOffset().asSeconds()) + "/" + std::to_string(music.getDuration().asSeconds());
-            }
-            else
-            {
-                LOG() << "[ERR] Fail to load background music in " << musicpath;
-            }
+            music.play();
         }
-       
 
-        this->animal = new Animal(this->entityTextures[0].second, this->entityTextures[0].first);
+        float deltatime = 0;
+
+        sf::Clock clock;
+        sf::Event event;
+
+        sf::RenderWindow window(sf::VideoMode(300, 300), "Tamagotchi", sf::Style::Close);
+        window.setVerticalSyncEnabled(userconf.VerticalSync);
+        //sf::Image tmp;
+        //tmp.loadFromFile(this->application_path);
+        //window.setIcon(tmp.getSize().x, tmp.getSize().y, tmp.getPixelsPtr());
+        
+        if (userconf.alwaysOnTop)
+        {
+            HWND hwnd = window.getSystemHandle();
+            SetWindowPos(hwnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE);
+        }
+
+        if (!userconf.console)
+        {
+            HWND console = GetForegroundWindow();
+            ShowWindow(console, SW_HIDE);
+        }
+
+      
         while (window.isOpen())
         {
             deltatime = clock.restart().asSeconds();
@@ -95,13 +106,17 @@ bool Window::start()
                 }
             }
 
-            window.setTitle(std::string("Tamagotchi " + std::to_string(1.0 / deltatime)).c_str());
+            if (userconf.showFPS)
+            {
+                // render time (deltatime * std::pow(10, 3)) 
+                window.setTitle(std::string("Tamagotchi " + std::to_string(1.0 / deltatime)).c_str());
+            }
+            
             this->update(deltatime);
             window.clear();
             this->draw(window);
             window.display();
         }
-
         return true;
     }
 

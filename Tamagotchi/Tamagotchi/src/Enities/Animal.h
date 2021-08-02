@@ -8,6 +8,7 @@
 #define BACKGROUND_TOTAL 12
 #define SHOW_HUNGER_TIME 1000 * 60 * 15
 #define MAX_VITAL 4
+#define ANIMAL_TEXTURE_SIZE 32
 
 class Animal : public Entity
 {
@@ -20,6 +21,11 @@ public:
 	bool isNight();
 
 private:
+	void updateCurrentTextures();
+	std::vector<sf::Texture> currentTextures;
+	int texturesIndex = 0;
+	sf::Sprite currentSprite;
+
 	float global_time;
 	float interaction_time;
 	float animation_time;
@@ -42,6 +48,9 @@ private:
 	float happy = MAX_VITAL;
 
 	bool alive = true;
+
+	bool isCenter = false;
+	bool stateChange = true;
 
 	void hud(sf::RenderWindow&);
 };
