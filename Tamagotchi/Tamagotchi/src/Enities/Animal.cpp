@@ -4,6 +4,7 @@
 
 Animal::Animal(std::vector<std::pair<EntityState, std::vector<sf::Texture>>> t, int id) : Entity(t, id)
 {
+    this->state = EntityState::WAIT;
     this->updateCurrentTextures();
 }
 
@@ -20,10 +21,27 @@ void Animal::update(float &detatime)
         this->hunger_time += detatime * 1000;
 
 
+        if (this->state == EntityState::WAIT)
+        {
+            if (this->animation_time >= 200)
+            {
+                this->animation_time = 0;
+                this->texturesIndex++;
+                this->stateChange = true;
+                if (this->texturesIndex >= this->currentTextures.size())
+                {
+                    this->texturesIndex = 0;
+                }
+            }
+        }
+        
+
+
         if (this->hunger_time >= SHOW_HUNGER_TIME)
         {
             this->showHunger = true;
             this->hunger -= detatime;
+
             if (this->hunger + this->eat_action >= 100)
             {
                 this->showHunger = false;

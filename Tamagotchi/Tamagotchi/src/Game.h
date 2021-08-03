@@ -33,6 +33,8 @@ private:
 	sf::Font font;
 	
 	Animal* animal;
+	int animal_back_index = -1;
+	sf::Sprite animal_background;
 
 	std::vector<sf::Texture> background;
 	std::vector<sf::Texture> icons;

@@ -64,7 +64,13 @@ bool Window::start()
 
     if (this->state == WindowState::START_GAME)
     {
+        
         this->animal = new Animal(this->entityTextures[0].second, this->entityTextures[0].first);
+        
+        // free unused textures
+        //this->entityTextures.clear();
+        //this->entityTextures.shrink_to_fit();
+
         if (userconf.musicEnable)
         {
             music.play();
@@ -93,7 +99,6 @@ bool Window::start()
             ShowWindow(console, SW_HIDE);
         }
 
-      
         while (window.isOpen())
         {
             deltatime = clock.restart().asSeconds();
@@ -130,17 +135,18 @@ void Window::update(float &deltatime)
 
 void Window::draw(sf::RenderWindow &window)
 {
-    if (this->background.size())
+    if (this->animal->getBackground() != this->animal_back_index )
     {
-        sf::Sprite back;
-        back.setTexture(this->background[this->animal->getBackground()]);
-        back.setPosition(sf::Vector2f(0, 0));
-        back.setScale(sf::Vector2f(PIXEL_SIZE, PIXEL_SIZE));
-        window.draw(back);
+        this->animal_back_index = this->animal->getBackground();
+        this->animal_background.setTexture(this->background[this->animal->getBackground()]);
+        this->animal_background.setPosition(sf::Vector2f(0, 0));
+        this->animal_background.setScale(sf::Vector2f(PIXEL_SIZE, PIXEL_SIZE));
     }
+    window.draw(this->animal_background);
 
     this->animal->draw(window);
 
+    
     if (this->animal->isNight())
     {
         sf::RectangleShape filter;
@@ -149,8 +155,10 @@ void Window::draw(sf::RenderWindow &window)
         filter.setSize(sf::Vector2f(window.getSize()));
         window.draw(filter);
     }
-
+   
     /*
+   
+    
      sf::Sprite s;
     sf::Texture tmp = this->entityTextures[0].second[g_index].second[index];
     s.setTexture(tmp);
@@ -310,9 +318,9 @@ void Window::init_load()
         {
             this->textureLoader(item.name, &this->background, assetsDir);
         }
-        else if (!item.isFile && item.name == "icon")
+        else if (!item.isFile && item.name == "icons")
         {
-            this->textureLoader(item.name, &this->background, assetsDir);
+            this->textureLoader(item.name, &this->icons, assetsDir);
         }
     }
     this->state = WindowState::START_GAME;
