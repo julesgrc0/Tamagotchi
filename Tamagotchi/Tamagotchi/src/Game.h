@@ -29,7 +29,7 @@ private:
 	void update(float&);
 	void draw(sf::RenderWindow&);
 	
-	char* application_path;
+	std::string application_path;
 	sf::Font font;
 	
 	Animal* animal;
@@ -54,7 +54,3 @@ private:
 
 	sf::Text text(std::string,sf::Vector2f,int,bool diff = false);
 };
-
-
-
-std::string merge_path(const char* path1, const char* path2);

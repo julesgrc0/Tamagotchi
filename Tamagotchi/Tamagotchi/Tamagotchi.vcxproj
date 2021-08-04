@@ -140,6 +140,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\Enities\Particle.cpp" />
     <ClCompile Include="src\Enities\Animal.cpp" />
     <ClCompile Include="src\Entity.cpp" />
     <ClCompile Include="main.cpp" />
@@ -147,6 +148,7 @@
     <ClCompile Include="src\UserConfig.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\Enities\Particle.h" />
     <ClInclude Include="src\Enities\Animal.h" />
     <ClInclude Include="src\Const.h" />
     <ClInclude Include="src\Entity.h" />

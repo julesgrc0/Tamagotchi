@@ -23,8 +23,8 @@ Window::Window()
 
     std::vector<std::string> list = split(tmpstr, '\\');
     list.pop_back();
-    strcpy(this->application_path, (join(list, '\\').c_str()));
-
+    //strcpy(this->application_path, (join(list, '\\').c_str()));
+    this->application_path = join(list, '\\');
     delete[] tmp;
 }
 
@@ -45,7 +45,7 @@ bool Window::start()
     sf::Music music;
     if (userconf.musicEnable)
     {
-        std::string musicpath = merge_path(this->application_path, "assets\\music\\background.wav");
+        std::string musicpath = this->application_path + "assets\\music\\background.wav";
         if (music.openFromFile(musicpath))
         {
             LOG() << "[INFO] Load background music in " << musicpath;
@@ -64,7 +64,7 @@ bool Window::start()
 
     if (this->state == WindowState::START_GAME)
     {
-        
+       
         this->animal = new Animal(this->entityTextures[0].second, this->entityTextures[0].first);
         
         // free unused textures
@@ -95,10 +95,23 @@ bool Window::start()
 
         if (!userconf.console)
         {
-            HWND console = GetForegroundWindow();
+            HWND console = GetConsoleWindow();
             ShowWindow(console, SW_HIDE);
         }
-
+        
+        /*std::thread([&]() {
+            float lastdelta = 0;
+            while (window.isOpen())
+            {
+                
+                if (deltatime != lastdelta)
+                {
+                    lastdelta = deltatime;
+                    this->update(deltatime);
+                }
+            }
+        }).detach();
+        */
         while (window.isOpen())
         {
             deltatime = clock.restart().asSeconds();
@@ -116,7 +129,7 @@ bool Window::start()
                 // render time (deltatime * std::pow(10, 3)) 
                 window.setTitle(std::string("Tamagotchi " + std::to_string(1.0 / deltatime)).c_str());
             }
-            
+
             this->update(deltatime);
             window.clear();
             this->draw(window);
@@ -146,7 +159,23 @@ void Window::draw(sf::RenderWindow &window)
 
     this->animal->draw(window);
 
-    
+    /*int index = 0;
+    for (size_t i = 0; i < this->icons.size(); i++)
+    {
+        if (i != 1 && i != 2)
+        {
+            sf::Sprite s;
+            s.setTexture(this->icons[i]);
+            s.setScale(sf::Vector2f(1.2, 1.2));
+
+            s.setPosition(sf::Vector2f(index * (s.getGlobalBounds().width + 5) + 2, 2));
+            window.draw(s);
+            index++;
+        }
+       
+    }
+    */
+
     if (this->animal->isNight())
     {
         sf::RectangleShape filter;
@@ -156,8 +185,13 @@ void Window::draw(sf::RenderWindow &window)
         window.draw(filter);
     }
    
+
+    
     /*
-   
+   sf::Sprite s;
+    s.setTexture(this->icons[0]);
+    s.setPosition(sf::Vector2f(10, 10));
+    window.draw(s);
     
      sf::Sprite s;
     sf::Texture tmp = this->entityTextures[0].second[g_index].second[index];
@@ -177,7 +211,7 @@ void Window::draw(sf::RenderWindow &window)
 void Window::init_load()
 {
 
-    std::string path(merge_path(this->application_path, FONT));
+    std::string path(this->application_path+FONT);
     if (!this->font.loadFromFile(path))
     {
         LOG() << "[ERR] Fail to load " << path;
@@ -226,7 +260,7 @@ void Window::init_load()
         ANIM_STATIC,
         ANIM_ENERGIE};
 
-    std::string assetsDir = merge_path(this->application_path, "assets\\");
+    std::string assetsDir = this->application_path+ "assets\\";
     readdir(assetsDir, &items);
     if (items.size() == 0)
     {
@@ -372,9 +406,4 @@ sf::Text Window::text(std::string text, sf::Vector2f position, int size, bool di
     t.setPosition(position);
     t.setFillColor(sf::Color::White);
     return t;
-}
-
-std::string merge_path(const char *path1, const char *path2)
-{
-    return std::string(path1) + std::string(path2);
 }

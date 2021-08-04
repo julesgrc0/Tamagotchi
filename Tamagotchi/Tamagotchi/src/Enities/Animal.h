@@ -7,7 +7,7 @@
 #define BACKGROUND_MAX_FRAMES 3
 #define BACKGROUND_TOTAL 12
 #define SHOW_HUNGER_TIME 1000 * 60 * 15
-#define MAX_VITAL 4
+#define MAX_VITAL 100
 #define ANIMAL_TEXTURE_SIZE 32
 
 class Animal : public Entity
@@ -21,6 +21,7 @@ public:
 	bool isNight();
 
 private:
+	void setState(EntityState);
 	void updateCurrentTextures();
 	std::vector<sf::Texture> currentTextures;
 	int texturesIndex = 0;
@@ -33,10 +34,14 @@ private:
 	float night_time;
 	float hunger_time;
 	
+	float play_key_time;
+	bool play_keypress = false;
 
 	bool night = false;
 	bool showBox = false;
 	bool showHunger = false;
+
+	
 
 	int switch_night_count = 0;
 	int background_index = 0;
@@ -45,12 +50,9 @@ private:
 
 	float hunger = MAX_VITAL;
 	int life = MAX_VITAL;
-	float happy = MAX_VITAL;
 
 	bool alive = true;
 
 	bool isCenter = false;
 	bool stateChange = true;
-
-	void hud(sf::RenderWindow&);
 };

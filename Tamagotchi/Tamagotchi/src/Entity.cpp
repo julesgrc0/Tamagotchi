@@ -7,6 +7,17 @@ Entity::Entity(std::vector<std::pair<EntityState, std::vector<sf::Texture>>> tex
     this->id = id;
 }
 
+Entity::Entity(std::vector<sf::Texture> textures, int id)
+{
+    this->textures_list = textures;
+    this->id = id;
+}
+
+Entity::Entity(int id)
+{
+    this->id = id;
+}
+
 Entity::~Entity()
 {
 }
@@ -59,11 +70,13 @@ std::string Entity::getStatetoString(EntityState s)
         return ANIM_WAIT;
         break;
     }
+
+    return ANIM_STATIC;
 }
 
 EntityState Entity::getStatefromString(std::string str)
 {
-    EntityState s;
+    EntityState s = EntityState::STATIC;
     if (str == ANIM_HAPPY)
     {
         s = EntityState::HAPPY;

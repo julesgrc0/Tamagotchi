@@ -17,12 +17,14 @@ class Entity
 {
 public:
 	Entity(std::vector<std::pair<EntityState,std::vector<sf::Texture>>>,int);
+	Entity(std::vector<sf::Texture>, int);
+	Entity(int);
 	~Entity();
 	
 	EntityState state;
-	int8_t state_index;
 	sf::Vector2f position = sf::Vector2f(0, 0);
 	sf::Vector2f size = sf::Vector2f(0,0);
+	float angle;
 
 	bool aabb(Entity&);
 	static EntityState getStatefromString(std::string);
@@ -32,6 +34,7 @@ public:
 
 protected:
 	std::vector<std::pair<EntityState, std::vector<sf::Texture>>> textures;
-	int8_t id;
+	std::vector<sf::Texture> textures_list;
+	int id;
 };
 

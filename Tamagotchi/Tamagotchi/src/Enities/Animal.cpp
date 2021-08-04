@@ -21,7 +21,7 @@ void Animal::update(float &detatime)
         this->hunger_time += detatime * 1000;
 
 
-        if (this->state == EntityState::WAIT)
+        if (this->state == EntityState::WAIT || this->state == EntityState::ENERGIE)
         {
             if (this->animation_time >= 200)
             {
@@ -35,7 +35,38 @@ void Animal::update(float &detatime)
             }
         }
         
+        this->play_keypress = false;
+        int keycount = 0;
+        for (int i = 0; i < 26; i++)
+        {
+            if (sf::Keyboard::isKeyPressed((sf::Keyboard::Key)i))
+            {
+                this->play_keypress = true;
+                this->play_key_time += detatime * 1000;
+                if (this->play_key_time >= 10000)
+                {
+                    if (this->state == EntityState::WAIT)
+                    {
+                        this->setState(EntityState::ENERGIE);
+                    }else if (this->state == EntityState::ENERGIE)
+                    {
+                        this->setState(EntityState::WAIT);
+                    }
 
+                    this->play_key_time = 0;
+                }
+
+                keycount++;
+                if (keycount >= 3)
+                {
+                    break;
+                }
+            }
+        }
+        if (!this->play_keypress)
+        {
+            this->play_key_time = 0;
+        }
 
         if (this->hunger_time >= SHOW_HUNGER_TIME)
         {
@@ -97,7 +128,7 @@ void Animal::update(float &detatime)
 void Animal::updateCurrentTextures()
 {
     std::pair<EntityState, std::vector<sf::Texture>> item;
-
+    this->currentTextures.clear();
     std::find_if(this->textures.begin(), this->textures.end(), [&](const std::pair<EntityState, std::vector<sf::Texture>>& p)
         {
             if (p.first == this->state)
@@ -108,6 +139,13 @@ void Animal::updateCurrentTextures()
             return false;
         });
     this->currentTextures = item.second;
+}
+void Animal::setState(EntityState state)
+{
+    this->state = state;
+    this->updateCurrentTextures();
+    this->stateChange = true;
+    this->texturesIndex = 0;
 }
 
 void Animal::draw(sf::RenderWindow &window)
@@ -131,6 +169,24 @@ void Animal::draw(sf::RenderWindow &window)
         }
         
         window.draw(this->currentSprite);
+
+        if (this->play_keypress)
+        {
+            sf::RectangleShape rect;
+            rect.setOutlineColor(sf::Color::Color(40, 40, 40));
+            rect.setOutlineThickness(1);
+            rect.setSize(sf::Vector2f(15, window.getSize().y / 3));
+            rect.setPosition(sf::Vector2f(20, window.getSize().y - (rect.getSize().y + 40)));
+            rect.setFillColor(sf::Color::Transparent);
+            window.draw(rect);
+
+            rect.setOutlineColor(sf::Color::Transparent);
+            rect.setOutlineThickness(0);
+            rect.setSize(sf::Vector2f(rect.getSize().x, (rect.getSize().y * this->play_key_time) / 10000));
+            rect.setFillColor(sf::Color::Color(200, 0, 0));
+            window.draw(rect);
+        }
+       
     }
 
     if (this->showBox)
@@ -139,7 +195,6 @@ void Animal::draw(sf::RenderWindow &window)
         rect.setSize(sf::Vector2f(ANIMAL_TEXTURE_SIZE * 4, ANIMAL_TEXTURE_SIZE * 4));
         rect.setPosition(this->position);
         rect.setOrigin(sf::Vector2f(rect.getSize().x / 2, rect.getSize().y / 2));
-
         rect.setOutlineColor(sf::Color::Red);
         rect.setOutlineThickness(1);
         rect.setFillColor(sf::Color::Transparent);
@@ -147,10 +202,6 @@ void Animal::draw(sf::RenderWindow &window)
     }
 }
 
-void Animal::hud(sf::RenderWindow& window)
-{
-    
-}
 
 bool Animal::isNight()
 {

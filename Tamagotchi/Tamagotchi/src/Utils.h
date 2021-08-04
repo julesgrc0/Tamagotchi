@@ -57,7 +57,7 @@ struct DirectoryItem {
 void readdir(std::string dir,std::vector<DirectoryItem>* items)
 {
     WIN32_FIND_DATA ffd;
-    LARGE_INTEGER filesize;
+    //LARGE_INTEGER filesize;
     HANDLE hFind = INVALID_HANDLE_VALUE;
 
     std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
