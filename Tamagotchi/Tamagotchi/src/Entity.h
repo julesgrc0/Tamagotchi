@@ -13,6 +13,18 @@ enum EntityState {
 	WAIT
 };
 
+enum IconType {
+	COIN,
+	MENU,
+	MENU_ACTIVE,
+	FOOD,
+	GAME,
+	BALL,
+	VIRUS,
+	SLEEP,
+	SUN
+};
+
 class Entity
 {
 public:

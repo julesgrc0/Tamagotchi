@@ -1,14 +1,15 @@
 #include "Animal.h"
 #include "../Log.h"
+
 #include"../Const.h"
+
 
 Animal::Animal(std::vector<std::pair<EntityState, std::vector<sf::Texture>>> t, int id) : Entity(t, id)
 {
-    this->state = EntityState::WAIT;
-    this->updateCurrentTextures();
+    this->setState(EntityState::WAIT, 200);
 }
 
-void Animal::update(float &detatime)
+void Animal::update(float& detatime)
 {
     if (this->alive)
     {
@@ -20,53 +21,149 @@ void Animal::update(float &detatime)
         this->interaction_time += detatime * 1000;
         this->hunger_time += detatime * 1000;
 
-
-        if (this->state == EntityState::WAIT || this->state == EntityState::ENERGIE)
+        if (this->waitfor_eat >= 0)
         {
-            if (this->animation_time >= 200)
+            this->waitfor_eat -= detatime * 1000;
+        }
+        if (this->waitfor_play >= 0)
+        {
+            this->waitfor_play -= detatime * 1000;
+        }
+
+
+        if (this->animation_time >= this->current_animation_speed)
+        {
+            this->animation_time = 0;
+            this->texturesIndex++;
+            this->stateChange = true;
+            if (this->texturesIndex >= this->currentTextures.size())
             {
-                this->animation_time = 0;
-                this->texturesIndex++;
-                this->stateChange = true;
-                if (this->texturesIndex >= this->currentTextures.size())
+                if (this->state == EntityState::ANGRY)
                 {
-                    this->texturesIndex = 0;
+                    this->setState(EntityState::WAIT, 200);
                 }
+
+                if (this->state == EntityState::LOOP)
+                {
+                    this->setState(EntityState::WAIT, 200);
+                }
+
+                if (this->state == EntityState::HAPPY)
+                {
+                    this->setState(EntityState::ENERGIE, 200);
+                }
+                this->texturesIndex = 0;
             }
         }
-        
+
+
         this->play_keypress = false;
-        int keycount = 0;
-        for (int i = 0; i < 26; i++)
+        if (!(this->waitfor_play >= 0))
         {
-            if (sf::Keyboard::isKeyPressed((sf::Keyboard::Key)i))
+            int keycount = 0;
+            for (int i = 0; i < 26; i++)
             {
-                this->play_keypress = true;
-                this->play_key_time += detatime * 1000;
-                if (this->play_key_time >= 10000)
+                if (sf::Keyboard::isKeyPressed((sf::Keyboard::Key)i))
                 {
-                    if (this->state == EntityState::WAIT)
+                    this->play_keypress = true;
+                    this->play_key_time += detatime * 1000;
+                    if (this->play_key_time >= 10000)
                     {
-                        this->setState(EntityState::ENERGIE);
-                    }else if (this->state == EntityState::ENERGIE)
-                    {
-                        this->setState(EntityState::WAIT);
+                        if (this->state == EntityState::WAIT)
+                        {
+                            this->setState(EntityState::ENERGIE, 200);
+                        }
+                        else if (this->state == EntityState::ENERGIE)
+                        {
+                            this->setState(EntityState::WAIT, 200);
+                        }
+                        else if (this->state == EntityState::SICK)
+                        {
+                            this->sick_help_count++;
+                            if (this->sick_help_count >= 5)
+                            {
+                                this->sick_total_count++;
+                                this->sick_help_count = 0;
+
+                                if (this->sick_total_count >= 2 || rand() % 100 > 80)
+                                {
+                                    this->sick_total_count = 0;
+                                    this->setState(EntityState::ANGRY, 200);
+                                }
+                                else
+                                {
+                                    this->setState(EntityState::WAIT, 200);
+                                }
+                            }
+                        }
+                        this->play_key_time = 0;
+                        this->play_count++;
+                        if (this->play_count >= 4)
+                        {
+                            this->waitfor_play = 1000 * 60;
+                            this->play_count = 0;
+                        }
                     }
 
-                    this->play_key_time = 0;
-                }
-
-                keycount++;
-                if (keycount >= 3)
-                {
-                    break;
+                    keycount++;
+                    if (keycount >= 3)
+                    {
+                        break;
+                    }
                 }
             }
+            if (!this->play_keypress)
+            {
+                this->play_key_time = 0;
+            }
         }
-        if (!this->play_keypress)
+
+
+        this->eat_keypress = false;
+        if (!(this->waitfor_eat >= 0) && this->state != EntityState::SICK)
         {
-            this->play_key_time = 0;
+            int keycount = 0;
+            for (int i = 26; i < 36; i++)
+            {
+                if (sf::Keyboard::isKeyPressed((sf::Keyboard::Key)i))
+                {
+                    this->eat_keypress = true;
+                    this->eat_key_time += detatime * 1000;
+                    if (this->eat_key_time >= 10000)
+                    {
+                        this->eat_key_time = 0;
+                        this->eat_count++;
+                        if (this->showHunger)
+                        {
+                            this->eat_action += 25;
+                        }
+
+                        if (this->eat_count >= 4)
+                        {
+                            this->waitfor_eat = 1000 * 60;
+                            this->eat_count = 0;
+                            this->waitfor_eat_count++;
+                            if (this->waitfor_eat_count >= 4)
+                            {
+                                this->waitfor_eat_count = 0;
+                                this->setState(EntityState::SICK, 400);
+                            }
+                        }
+                    }
+
+                    keycount++;
+                    if (keycount >= 4)
+                    {
+                        break;
+                    }
+                }
+            }
+            if (!this->eat_keypress)
+            {
+                this->eat_key_time = 0;
+            }
         }
+
 
         if (this->hunger_time >= SHOW_HUNGER_TIME)
         {
@@ -79,6 +176,14 @@ void Animal::update(float &detatime)
                 this->hunger_time = 0;
                 this->eat_action = 0;
                 this->hunger = MAX_VITAL;
+
+                if (rand() % 100 < 80)
+                {
+                    this->setState(EntityState::LOOP, 80);
+                }else
+                {
+                    this->setState(EntityState::HAPPY, 150);
+                }
             }
 
             if (this->hunger <= 0)
@@ -88,6 +193,12 @@ void Animal::update(float &detatime)
                 this->eat_action = 0;
                 this->hunger = MAX_VITAL;
                 this->life--;
+
+                if (rand() % 100 > 60)
+                {
+                    this->sick_total_count = 0;
+                    this->setState(EntityState::ANGRY, 200);
+                }
             }
         }
 
@@ -125,6 +236,11 @@ void Animal::update(float &detatime)
     }
 }
 
+void Animal::setIconsPack(std::vector<sf::Texture> t)
+{
+    this->icons = t;
+}
+
 void Animal::updateCurrentTextures()
 {
     std::pair<EntityState, std::vector<sf::Texture>> item;
@@ -140,8 +256,9 @@ void Animal::updateCurrentTextures()
         });
     this->currentTextures = item.second;
 }
-void Animal::setState(EntityState state)
+void Animal::setState(EntityState state,float speed)
 {
+    this->current_animation_speed = speed;
     this->state = state;
     this->updateCurrentTextures();
     this->stateChange = true;
@@ -175,19 +292,140 @@ void Animal::draw(sf::RenderWindow &window)
             sf::RectangleShape rect;
             rect.setOutlineColor(sf::Color::Color(40, 40, 40));
             rect.setOutlineThickness(1);
-            rect.setSize(sf::Vector2f(15, window.getSize().y / 3));
-            rect.setPosition(sf::Vector2f(20, window.getSize().y - (rect.getSize().y + 40)));
+            rect.setSize(sf::Vector2f(5, (window.getSize().y / 3)/PIXEL_SIZE));
+            
             rect.setFillColor(sf::Color::Transparent);
+            rect.setPosition(sf::Vector2f((5 * PIXEL_SIZE), (window.getSize().y - (rect.getSize().y + 40)) / PIXEL_SIZE));
+            rect.setScale(sf::Vector2f(PIXEL_SIZE, PIXEL_SIZE));
+
+            
             window.draw(rect);
 
             rect.setOutlineColor(sf::Color::Transparent);
             rect.setOutlineThickness(0);
             rect.setSize(sf::Vector2f(rect.getSize().x, (rect.getSize().y * this->play_key_time) / 10000));
-            rect.setFillColor(sf::Color::Color(200, 0, 0));
+            if (this->play_key_time >= 10000 / 2)
+            {
+                rect.setFillColor(sf::Color(255 - ((this->play_key_time / 2) * 255 / (10000 / 2)) * 2, 255, 0));
+            }
+            else
+            {
+                rect.setFillColor(sf::Color(255, ((this->play_key_time / 2) * 255 / (10000 / 2)) * 2, 0));
+            }
             window.draw(rect);
+
+            sf::Sprite s;
+            s.setTexture(this->icons[IconType::BALL]);
+            s.setPosition(sf::Vector2f(rect.getPosition().x, rect.getPosition().y + (window.getSize().y / 3) + PIXEL_SIZE));
+            s.setScale(sf::Vector2f(1.2, 1.2));
+            window.draw(s);
+            
+        }
+       
+        if (this->eat_keypress)
+        {
+            sf::RectangleShape rect;
+            rect.setOutlineColor(sf::Color::Color(40, 40, 40));
+            rect.setOutlineThickness(1);
+            rect.setSize(sf::Vector2f(5, (window.getSize().y / 3) / PIXEL_SIZE));
+
+            rect.setFillColor(sf::Color::Transparent);
+            rect.setPosition(sf::Vector2f((window.getSize().x - (10* PIXEL_SIZE)), (window.getSize().y - (rect.getSize().y + 40)) / PIXEL_SIZE));
+            rect.setScale(sf::Vector2f(PIXEL_SIZE, PIXEL_SIZE));
+
+
+            window.draw(rect);
+
+            rect.setOutlineColor(sf::Color::Transparent);
+            rect.setOutlineThickness(0);
+            rect.setSize(sf::Vector2f(rect.getSize().x, (rect.getSize().y * this->eat_key_time) / 10000));
+            if (this->eat_key_time >= 10000 / 2)
+            {
+                rect.setFillColor(sf::Color(255 - ((this->eat_key_time / 2) * 255 / (10000 / 2)) * 2, 255, 0));
+            }
+            else
+            {
+                rect.setFillColor(sf::Color(255, ((this->eat_key_time / 2) * 255 / (10000 / 2)) * 2, 0));
+            }
+            window.draw(rect);
+            
+
+            sf::Sprite s;
+            s.setTexture(this->icons[IconType::FOOD]);
+            s.setPosition(sf::Vector2f(rect.getPosition().x,rect.getPosition().y + (window.getSize().y / 3) + PIXEL_SIZE));
+            s.setScale(sf::Vector2f(1.5, 1.5));
+            window.draw(s);
+        }
+    }
+
+
+   
+    int index = 0;
+    for (size_t i = 0; i < this->icons.size(); i++)
+    {
+        IconType type = (IconType)i;
+
+        if (type != IconType::MENU && type != IconType::MENU_ACTIVE)
+        {
+            sf::Sprite s;
+            s.setTexture(this->icons[i]);
+            s.setScale(sf::Vector2f(1.2, 1.2));
+            s.setPosition(sf::Vector2f(index * (s.getGlobalBounds().width + 5) + 2, 2));
+
+            bool draw = false;
+            switch (type)
+            {
+            case COIN:
+                if (this->state == EntityState::LOOP)
+                {
+                    draw = true;
+                }
+                break;
+            case FOOD:
+                if (this->showHunger)
+                {
+                    draw = true;
+                }
+                break;
+            case GAME:
+                //
+                break;
+            case BALL:
+                if (this->state == EntityState::ENERGIE || this->state == EntityState::HAPPY)
+                {
+                    draw = true;
+                }
+                break;
+            case VIRUS:
+                if (this->state == EntityState::SICK)
+                {
+                    draw = true;
+                }
+                break;
+            case SLEEP:
+                if (this->night)
+                {
+                    draw = true;
+                }
+                break;
+            case SUN:
+                if (!this->night)
+                {
+                    draw = true;
+                }
+                break;
+            }
+
+            if (draw)
+            {
+                window.draw(s);
+                index++;
+            }
         }
        
     }
+    
+    
 
     if (this->showBox)
     {

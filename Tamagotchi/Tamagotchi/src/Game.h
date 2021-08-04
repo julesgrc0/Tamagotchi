@@ -11,6 +11,7 @@ enum WindowState {
 	QUIT
 };
 
+
 class Window
 {
 public:

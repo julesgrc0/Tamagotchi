@@ -66,7 +66,7 @@ bool Window::start()
     {
        
         this->animal = new Animal(this->entityTextures[0].second, this->entityTextures[0].first);
-        
+        this->animal->setIconsPack(this->icons);
         // free unused textures
         //this->entityTextures.clear();
         //this->entityTextures.shrink_to_fit();
@@ -158,23 +158,6 @@ void Window::draw(sf::RenderWindow &window)
     window.draw(this->animal_background);
 
     this->animal->draw(window);
-
-    /*int index = 0;
-    for (size_t i = 0; i < this->icons.size(); i++)
-    {
-        if (i != 1 && i != 2)
-        {
-            sf::Sprite s;
-            s.setTexture(this->icons[i]);
-            s.setScale(sf::Vector2f(1.2, 1.2));
-
-            s.setPosition(sf::Vector2f(index * (s.getGlobalBounds().width + 5) + 2, 2));
-            window.draw(s);
-            index++;
-        }
-       
-    }
-    */
 
     if (this->animal->isNight())
     {

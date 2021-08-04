@@ -19,9 +19,12 @@ public:
 	void draw(sf::RenderWindow &) override;
 	int getBackground();
 	bool isNight();
+	void setIconsPack(std::vector<sf::Texture>);
 
 private:
-	void setState(EntityState);
+	std::vector<sf::Texture> icons;
+
+	void setState(EntityState,float);
 	void updateCurrentTextures();
 	std::vector<sf::Texture> currentTextures;
 	int texturesIndex = 0;
@@ -33,9 +36,20 @@ private:
 	float background_time;
 	float night_time;
 	float hunger_time;
+
+	float current_animation_speed;
+
+	float waitfor_play;
+	float waitfor_eat;
+	int waitfor_eat_count = 0;
 	
 	float play_key_time;
 	bool play_keypress = false;
+	int play_count = 0;
+
+	float eat_key_time;
+	bool eat_keypress = false;
+	int eat_count = 0;
 
 	bool night = false;
 	bool showBox = false;
@@ -47,6 +61,8 @@ private:
 	int background_index = 0;
 	int max_background = 0;
 	int eat_action = 0;
+	int sick_help_count = 0;
+	int sick_total_count = 0;
 
 	float hunger = MAX_VITAL;
 	int life = MAX_VITAL;
