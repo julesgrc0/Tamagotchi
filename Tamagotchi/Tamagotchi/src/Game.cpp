@@ -32,15 +32,13 @@ Window::~Window()
 {
 }
 
-bool Window::start()
+bool Window::start(int type_id)
 {
     this->init_load();
-    
-    UserConfig* config = new UserConfig(std::string(this->application_path));
-    config->loadConfig();
-    ConfigObject userconf = config->user;
-    
-    delete config;
+
+    UserConfig config = UserConfig(std::string(this->application_path));
+    config.loadConfig();
+    ConfigObject userconf = config.user;
 
     sf::Music music;
     if (userconf.musicEnable)
@@ -49,11 +47,13 @@ bool Window::start()
         if (music.openFromFile(musicpath))
         {
             LOG() << "[INFO] Load background music in " << musicpath;
-
+            music.setLoop(true);
             music.setPitch(userconf.musicPitch);
             music.setVolume(userconf.musicVolume);
 
-            // TODO: Save in game data before close
+            sf::Time offset = sf::microseconds(userconf.musicOffset);
+            music.setPlayingOffset(offset);
+            
             // std::string song_index = std::to_string(music.getPlayingOffset().asSeconds()) + "/" + std::to_string(music.getDuration().asSeconds());
         }
         else
@@ -64,12 +64,18 @@ bool Window::start()
 
     if (this->state == WindowState::START_GAME)
     {
-       
-        this->animal = new Animal(this->entityTextures[0].second, this->entityTextures[0].first);
+        this->animal = new Animal(this->entityTextures[type_id - 1].second, this->entityTextures[type_id - 1].first);
         this->animal->setIconsPack(this->icons);
-        // free unused textures
-        //this->entityTextures.clear();
-        //this->entityTextures.shrink_to_fit();
+
+        if (!userconf.first_save)
+        {
+            this->animal->backupState(userconf.animal_state);
+        }
+       
+        
+
+        this->entityTextures.clear();
+        this->icons.clear();
 
         if (userconf.musicEnable)
         {
@@ -86,7 +92,7 @@ bool Window::start()
         //sf::Image tmp;
         //tmp.loadFromFile(this->application_path);
         //window.setIcon(tmp.getSize().x, tmp.getSize().y, tmp.getPixelsPtr());
-        
+
         if (userconf.alwaysOnTop)
         {
             HWND hwnd = window.getSystemHandle();
@@ -98,7 +104,7 @@ bool Window::start()
             HWND console = GetConsoleWindow();
             ShowWindow(console, SW_HIDE);
         }
-        
+
         /*std::thread([&]() {
             float lastdelta = 0;
             while (window.isOpen())
@@ -122,11 +128,19 @@ bool Window::start()
                 {
                     window.close();
                 }
+
+                if (event.type == sf::Event::MouseWheelMoved && event.mouseWheel.delta == 1)
+                {
+                    if (this->animal->state == EntityState::WAIT || this->animal->state == EntityState::ENERGIE)
+                    {
+                        this->animal->setState(EntityState::LOOP, 50);
+                    }
+                }
             }
 
             if (userconf.showFPS)
             {
-                // render time (deltatime * std::pow(10, 3)) 
+                // render time (deltatime * std::pow(10, 3))
                 window.setTitle(std::string("Tamagotchi " + std::to_string(1.0 / deltatime)).c_str());
             }
 
@@ -135,6 +149,8 @@ bool Window::start()
             this->draw(window);
             window.display();
         }
+
+        config.writeConfig(this->animal->getBackupState(), music.getPlayingOffset());
         return true;
     }
 
@@ -148,7 +164,7 @@ void Window::update(float &deltatime)
 
 void Window::draw(sf::RenderWindow &window)
 {
-    if (this->animal->getBackground() != this->animal_back_index )
+    if (this->animal->getBackground() != this->animal_back_index)
     {
         this->animal_back_index = this->animal->getBackground();
         this->animal_background.setTexture(this->background[this->animal->getBackground()]);
@@ -167,9 +183,7 @@ void Window::draw(sf::RenderWindow &window)
         filter.setSize(sf::Vector2f(window.getSize()));
         window.draw(filter);
     }
-   
 
-    
     /*
    sf::Sprite s;
     s.setTexture(this->icons[0]);
@@ -194,7 +208,7 @@ void Window::draw(sf::RenderWindow &window)
 void Window::init_load()
 {
 
-    std::string path(this->application_path+FONT);
+    std::string path(this->application_path + FONT);
     if (!this->font.loadFromFile(path))
     {
         LOG() << "[ERR] Fail to load " << path;
@@ -243,7 +257,7 @@ void Window::init_load()
         ANIM_STATIC,
         ANIM_ENERGIE};
 
-    std::string assetsDir = this->application_path+ "assets\\";
+    std::string assetsDir = this->application_path + "assets\\";
     readdir(assetsDir, &items);
     if (items.size() == 0)
     {

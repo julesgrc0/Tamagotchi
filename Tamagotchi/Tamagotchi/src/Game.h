@@ -18,7 +18,7 @@ public:
 	Window();
 	~Window();
 
-	bool start();
+	bool start(int);
 private:
 	WindowState state;
 

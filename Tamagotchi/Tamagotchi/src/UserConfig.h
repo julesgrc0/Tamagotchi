@@ -1,6 +1,7 @@
 #pragma once
 #include<iostream>
-
+#include <json/json.h>
+#include "./Enities/Animal.h"
 struct ConfigObject {
 	int musicVolume = 100;
 	bool musicEnable = true;
@@ -10,6 +11,10 @@ struct ConfigObject {
 	bool showFPS = true;
 	bool alwaysOnTop = false;
 	bool VerticalSync = false;
+
+	bool first_save = true;
+	AnimalSaveState animal_state;
+	sf::Int64 musicOffset;
 };
 
 class UserConfig
@@ -19,9 +24,11 @@ public:
 	~UserConfig();
 
 	bool loadConfig();
+	void writeConfig(AnimalSaveState state,sf::Time musicOffset);
 
 	ConfigObject user;
 private:
 	std::string app;
+	Json::Value root;
 };
 

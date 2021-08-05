@@ -1,6 +1,8 @@
 {
     "files.associations": {
         "*.cs": "csharp",
-        "xlocale": "cpp"
+        "xlocale": "cpp",
+        "fstream": "cpp",
+        "xlocmes": "cpp"
     }
 }
