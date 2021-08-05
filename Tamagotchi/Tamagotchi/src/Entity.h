@@ -9,6 +9,7 @@ enum EntityState {
 	HAPPY,
 	LOOP,
 	SICK,
+	SLEEP,
 	STATIC,
 	WAIT
 };
@@ -21,7 +22,7 @@ enum IconType {
 	GAME,
 	BALL,
 	VIRUS,
-	SLEEP,
+	ICON_SLEEP,
 	SUN
 };
 

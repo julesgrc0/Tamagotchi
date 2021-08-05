@@ -9,5 +9,6 @@
 #define ANIM_LOOP "loop"
 #define ANIM_STATIC "static"
 #define ANIM_ENERGIE "energie"
+#define ANIM_SLEEP "sleep"
 
 #define PIXEL_SIZE 4

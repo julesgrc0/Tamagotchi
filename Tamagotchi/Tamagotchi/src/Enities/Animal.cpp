@@ -50,6 +50,11 @@ void Animal::update(float &deltatime)
                 {
                     this->setState(EntityState::ENERGIE, 200);
                 }
+
+                 if (this->state == EntityState::SLEEP)
+                {
+                    this->setState(EntityState::WAIT, 200);
+                }
                 this->texturesIndex = 0;
             }
         }
@@ -93,6 +98,7 @@ void Animal::update(float &deltatime)
                         {
                             this->setState(EntityState::WAIT, 200);
                         }
+                        
                         else if (this->state == EntityState::SICK)
                         {
                             this->sick_help_count++;
@@ -237,11 +243,16 @@ void Animal::update(float &deltatime)
             this->alive = false;
         }
 
-        if (this->night_time >=  1000 * 60 *60) // 1H
+        if (this->night_time >=  1000 * 60 * 60) // 1H
         {
             this->switch_night_count++;
             this->night = !this->night;
             this->night_time = 0;
+
+            if (this->night && this->state != EntityState::SICK)
+            {
+               this->setState(EntityState::SLEEP,120);
+            }
 
             if (this->switch_night_count >= 24) // 1 day
             {
@@ -461,7 +472,7 @@ void Animal::draw(sf::RenderWindow &window)
                     draw = true;
                 }
                 break;
-            case SLEEP:
+            case ICON_SLEEP:
                 if (this->night)
                 {
                     draw = true;

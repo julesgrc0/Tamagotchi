@@ -294,7 +294,9 @@ void Window::init_load()
         ANIM_WAIT,
         ANIM_LOOP,
         ANIM_STATIC,
-        ANIM_ENERGIE};
+        ANIM_ENERGIE,
+        ANIM_SLEEP
+    };
 
     std::string assetsDir = this->application_path + "assets\\";
     readdir(assetsDir, &items);

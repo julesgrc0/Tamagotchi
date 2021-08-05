@@ -69,6 +69,9 @@ std::string Entity::getStatetoString(EntityState s)
     case WAIT:
         return ANIM_WAIT;
         break;
+    case SLEEP:
+        return ANIM_SLEEP;
+        break;
     }
 
     return ANIM_STATIC;
@@ -104,6 +107,11 @@ EntityState Entity::getStatefromString(std::string str)
     if (str == ANIM_ENERGIE)
     {
         s = EntityState::ENERGIE;
+    }
+
+    if (str == ANIM_SLEEP)
+    {
+        s = EntityState::SLEEP;
     }
 
     return s;
