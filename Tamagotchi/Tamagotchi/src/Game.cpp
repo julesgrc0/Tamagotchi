@@ -66,6 +66,7 @@ bool Window::start(int type_id)
     {
         this->animal = new Animal(this->entityTextures[type_id - 1].second, this->entityTextures[type_id - 1].first);
         this->animal->setIconsPack(this->icons);
+        this->animal->totalbackground = this->background.size();
 
         if (!userconf.first_save)
         {

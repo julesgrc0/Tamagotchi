@@ -237,7 +237,7 @@ void Animal::update(float &deltatime)
             this->alive = false;
         }
 
-        if (this->night_time >= 60 * 60 * 1000) // 1H
+        if (this->night_time >=  1000 * 60 *60) // 1H
         {
             this->switch_night_count++;
             this->night = !this->night;
@@ -247,7 +247,7 @@ void Animal::update(float &deltatime)
             {
                 this->switch_night_count = 0;
                 this->max_background += 3;
-                if (this->max_background >= BACKGROUND_TOTAL)
+                if (this->max_background >= this->totalbackground)
                 {
                     this->max_background = 0;
                 }

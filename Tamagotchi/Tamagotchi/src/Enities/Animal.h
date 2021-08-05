@@ -6,7 +6,6 @@
 #include "Particle.h"
 
 #define BACKGROUND_MAX_FRAMES 3
-#define BACKGROUND_TOTAL 12
 #define SHOW_HUNGER_TIME 1000 * 60 * 15
 #define MAX_VITAL 100
 #define ANIMAL_TEXTURE_SIZE 32
@@ -73,6 +72,8 @@ public:
 
 	void backupState(AnimalSaveState save);
 	AnimalSaveState getBackupState();
+
+	int totalbackground;
 private:
 	std::vector<sf::Texture> icons;
 	std::vector<Particle> particles;
