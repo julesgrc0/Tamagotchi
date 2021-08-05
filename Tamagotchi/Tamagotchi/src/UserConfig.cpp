@@ -78,6 +78,17 @@ bool UserConfig::loadConfig()
 		{
 			this->user.alwaysOnTop = window["alwaysOnTop"].asBool();
 		}
+
+		if (window["titlebar"])
+		{
+			this->user.titlebar = window["titlebar"].asBool();
+		}
+
+		if (window["position"])
+		{
+			this->user.win_pos.x = window["position"]["x"].asInt();
+			this->user.win_pos.y = window["position"]["y"].asInt();
+		}
 	}
 
 	if (this->root["data"])

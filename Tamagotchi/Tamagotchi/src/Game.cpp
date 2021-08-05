@@ -89,20 +89,58 @@ bool Window::start(int type_id)
 
         sf::RenderWindow window(sf::VideoMode(300, 300), "Tamagotchi", sf::Style::Close);
         window.setVerticalSyncEnabled(userconf.VerticalSync);
-        //sf::Image tmp;
-        //tmp.loadFromFile(this->application_path);
-        //window.setIcon(tmp.getSize().x, tmp.getSize().y, tmp.getPixelsPtr());
+        HWND hwnd = window.getSystemHandle();
+        
+        sf::Image tmp;
+        if (tmp.loadFromFile(this->application_path + "assets\\icon.jpg"))
+        {
+            window.setIcon(tmp.getSize().x, tmp.getSize().y, tmp.getPixelsPtr());
+        }
+       
+        
+        if (userconf.win_pos.x == -1 && userconf.win_pos.y == -1)
+        {
+            userconf.win_pos.x = (sf::VideoMode::getDesktopMode().width - window.getSize().x) / 2;
+            userconf.win_pos.y = (sf::VideoMode::getDesktopMode().height - window.getSize().y) / 2;
+        }
 
+        if (userconf.win_pos.x == -2)
+        {
+            userconf.win_pos.x = (sf::VideoMode::getDesktopMode().width - window.getSize().x);
+        }
+
+        if (userconf.win_pos.y == -2)
+        {
+            userconf.win_pos.y = (sf::VideoMode::getDesktopMode().height - window.getSize().y);
+        }
+
+        if (!userconf.titlebar)
+        {
+            SetWindowLong(hwnd, GWL_STYLE, 0);
+            SetWindowPos(hwnd, 0, userconf.win_pos.x, userconf.win_pos.y, 300, 300, SWP_FRAMECHANGED);
+        }else
+        {
+            RECT rect = { NULL };
+            GetWindowRect(hwnd, &rect);
+            // int titlebarSize =  GetSystemMetrics(SM_CYCAPTION);
+            SetWindowPos(hwnd, 0, userconf.win_pos.x, userconf.win_pos.y,rect.right - rect.left,rect.bottom - rect.top, SWP_FRAMECHANGED);
+        }
+
+        ShowWindow(hwnd, SW_SHOW);
+       
+     
         if (userconf.alwaysOnTop)
         {
-            HWND hwnd = window.getSystemHandle();
             SetWindowPos(hwnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE);
         }
 
+        HWND console = GetConsoleWindow();
         if (!userconf.console)
         {
-            HWND console = GetConsoleWindow();
             ShowWindow(console, SW_HIDE);
+        }else
+        {
+            ShowWindow(console, SW_SHOW);
         }
 
         /*std::thread([&]() {

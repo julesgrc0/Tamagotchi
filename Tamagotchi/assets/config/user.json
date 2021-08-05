@@ -9,6 +9,12 @@
     "console":true,
     "showFPS":true,
     "alwaysOnTop":false,
-    "VerticalSync":false
+    "VerticalSync":false,
+	"titlebar":true,
+	"position":
+	{
+		"x":-1,
+		"y":-1
+	}
   }
 }

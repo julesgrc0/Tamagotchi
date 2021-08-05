@@ -11,6 +11,8 @@ struct ConfigObject {
 	bool showFPS = true;
 	bool alwaysOnTop = false;
 	bool VerticalSync = false;
+	bool titlebar = true;
+	sf::Vector2i win_pos = sf::Vector2i(-1,-1);
 
 	bool first_save = true;
 	AnimalSaveState animal_state;
